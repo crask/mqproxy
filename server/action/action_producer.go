@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
@@ -27,24 +28,46 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	s := serializer.Serializer{Converter: msgConverter}
 
+	topic := r.Header.Get("TOPIC")
+	if topic == "" {
+		echo2client(w, s, producer.Response{
+			Errno:  -1,
+			Errmsg: "Not Found TOPIC Header",
+		})
+		return
+	}
+
+	partitionKey := r.Header.Get("PARTITION_KEY")
+	if partitionKey == "" {
+		echo2client(w, s, producer.Response{
+			Errno:  -1,
+			Errmsg: "Not Found PARTITION_KEY Header",
+		})
+		return
+	}
 	var resData producer.Response
-	var reqData producer.Request
+	var reqData map[string]interface{}
 	if err = s.Unmarshal(body, &reqData); err != nil {
 		log.Printf("Unmarshal HttpRequest error, %v", err)
 		resData = producer.Response{
 			-1,
 			"unmarshal http request data error",
-			make([]producer.MessageLocation, 0),
+			producer.MessageLocation{},
 		}
 	} else {
 		defer func() {
 			if err := recover(); err != nil {
 				log.Printf("catch a panic: %v, recover it", err)
 				err = global.ProducerPool.Rebuild()
-				//				echo2client(w, s, resData, err)
+				//				echo2client(w, s, resData)
 			}
 		}()
-		resData, err = global.ProducerPool.GetProducer().SendMessage(reqData)
+		resData, err = global.ProducerPool.GetProducer().SendMessage(producer.Request{
+			Topic:        topic,
+			PartitionKey: partitionKey,
+			TimeStamp:    time.Now().UnixNano() / 1000000,
+			Data:         reqData,
+		})
 		switch err.(type) {
 		case nil:
 			break
@@ -61,10 +84,10 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	echo2client(w, s, resData, err)
+	echo2client(w, s, resData)
 }
 
-func echo2client(w http.ResponseWriter, s serializer.Serializer, res producer.Response, e error) {
+func echo2client(w http.ResponseWriter, s serializer.Serializer, res producer.Response) {
 	b, e := s.Marshal(map[string]interface{}{
 		"errno":  res.Errno,
 		"errmsg": res.Errmsg,

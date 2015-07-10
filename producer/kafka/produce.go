@@ -1,8 +1,10 @@
 package producer
 
 import (
+	"encoding/json"
 	"gopkg.in/Shopify/sarama.v1"
-	"gopkg.in/vmihailenco/msgpack.v2"
+	//	"gopkg.in/vmihailenco/msgpack.v2"
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -11,16 +13,18 @@ import (
 type Request struct {
 	Topic        string
 	PartitionKey string
-	Data         interface{}
+	TimeStamp    int64
+	Data         map[string]interface{}
 }
 
 type Response struct {
 	Errno  int
 	Errmsg string
-	Data   []MessageLocation
+	Data   MessageLocation
 }
 
 type MessageLocation struct {
+	Topic     string
 	Partition int32
 	Offset    int64
 }
@@ -63,11 +67,12 @@ func (kp *KafkaProducer) SendMessage(req Request) (Response, error) {
 	kp.m.Lock()
 	defer kp.m.Unlock()
 
-	b, err := msgpack.Marshal(map[string]interface{}{"Data": req.Data})
+	//b, err := msgpack.Marshal(map[string]interface{}{"Data": req.Data})
+	b, err := json.Marshal(req)
 	if err != nil {
-		return Response{-1, err.Error(), make([]MessageLocation, 0)}, err
+		return Response{-1, err.Error(), MessageLocation{}}, err
 	}
-
+	fmt.Println(string(b))
 	msg := &sarama.ProducerMessage{
 		Topic: req.Topic,
 		Key:   sarama.StringEncoder(req.PartitionKey),
@@ -76,13 +81,14 @@ func (kp *KafkaProducer) SendMessage(req Request) (Response, error) {
 
 	partition, offset, err := kp.producer.SendMessage(msg)
 	if err != nil {
-		return Response{-1, err.Error(), make([]MessageLocation, 0)}, err
+		return Response{-1, err.Error(), MessageLocation{}}, err
 	}
 
-	return Response{0, "ok", []MessageLocation{{
+	return Response{0, "ok", MessageLocation{
+		Topic:     req.Topic,
 		Partition: partition,
 		Offset:    offset,
-	}}}, nil
+	}}, nil
 }
 
 func (kp *KafkaProducer) Close() {
