@@ -8,14 +8,18 @@ go get github.com/crask/mqproxy
 
 ###生产消息
 
+```shell
+curl -H "X-Kmq-Topic: yanl" -H "X-Kmq-Partition-Key: 8555" -d "n=8555" http://localhost:9090/foo?format=json
+```
+
 ```php
 <?php
 
     $ch =curl_init("http://127.0.0.1:9090/produce?format=json");
 
     $headers = array();
-    $headers[] = 'TOPIC:test';
-    $headers[] = 'PARTITION_KEY:asasasdasd';
+    $headers[] = 'X-Kmq-Topic: foo_topic';
+    $headers[] = 'X-Kmq-Partition-Key: bar_partition_key';
 
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
