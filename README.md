@@ -1,8 +1,17 @@
 # mqproxy
 
 ###安装
-go get github.com/crask/mqproxy
 
+Deps: [godep](https://github.com/tools/godep)
+
+
+```
+git clone https://github.com/tools/godep.git
+go get && go build
+
+git clone https://github.com/crask/mqproxy.git
+godep go build
+```
 ###启动
 ./mqproxy -c ./proxy.cfg 
 
