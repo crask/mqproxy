@@ -28,7 +28,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	s := serializer.Serializer{Converter: msgConverter}
 
-	topic := r.Header.Get("TOPIC")
+	topic := r.Header.Get("X-Kmq-Topic")
 	if topic == "" {
 		echo2client(w, s, producer.Response{
 			Errno:  -1,
@@ -37,7 +37,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	partitionKey := r.Header.Get("PARTITION_KEY")
+	partitionKey := r.Header.Get("X-Kmq_Partition_Key")
 	if partitionKey == "" {
 		echo2client(w, s, producer.Response{
 			Errno:  -1,
@@ -45,43 +45,38 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
 	var resData producer.Response
-	var reqData map[string]interface{}
-	if err = s.Unmarshal(body, &reqData); err != nil {
-		log.Printf("Unmarshal HttpRequest error, %v", err)
-		resData = producer.Response{
-			-1,
-			"unmarshal http request data error",
-			producer.MessageLocation{},
+	//var reqData map[string]interface{}
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Printf("catch a panic: %v, recover it", err)
+			err = global.ProducerPool.Rebuild()
+			//				echo2client(w, s, resData)
 		}
-	} else {
-		defer func() {
-			if err := recover(); err != nil {
-				log.Printf("catch a panic: %v, recover it", err)
-				err = global.ProducerPool.Rebuild()
-				//				echo2client(w, s, resData)
-			}
-		}()
-		resData, err = global.ProducerPool.GetProducer().SendMessage(producer.Request{
-			Topic:        topic,
-			PartitionKey: partitionKey,
-			TimeStamp:    time.Now().UnixNano() / 1000000,
-			Data:         reqData,
-		})
-		switch err.(type) {
-		case nil:
-			break
-		case sarama.PacketEncodingError:
-			log.Printf("producer SendMessage error, %v", err)
-			break
-		default:
-			if err == io.EOF {
-				panic("producer detected closed LAN connection, panic")
-			} else {
-				panic(err)
-			}
-			break
+	}()
+
+	resData, err = global.ProducerPool.GetProducer().SendMessage(producer.Request{
+		Topic:        topic,
+		PartitionKey: partitionKey,
+		TimeStamp:    time.Now().UnixNano() / 1000000,
+		Data:         string(body),
+	})
+
+	switch err.(type) {
+	case nil:
+		break
+	case sarama.PacketEncodingError:
+		log.Printf("producer SendMessage error, %v", err)
+		break
+	default:
+		if err == io.EOF {
+			panic("producer detected closed LAN connection, panic")
+		} else {
+			panic(err)
 		}
+		break
 	}
 
 	echo2client(w, s, resData)

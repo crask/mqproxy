@@ -2,9 +2,8 @@ package producer
 
 import (
 	"encoding/json"
-	"gopkg.in/Shopify/sarama.v1"
-	//	"gopkg.in/vmihailenco/msgpack.v2"
 	"fmt"
+	"gopkg.in/Shopify/sarama.v1"
 	"log"
 	"sync"
 	"time"
@@ -14,7 +13,7 @@ type Request struct {
 	Topic        string
 	PartitionKey string
 	TimeStamp    int64
-	Data         map[string]interface{}
+	Data         string
 }
 
 type Response struct {
@@ -67,7 +66,6 @@ func (kp *KafkaProducer) SendMessage(req Request) (Response, error) {
 	kp.m.Lock()
 	defer kp.m.Unlock()
 
-	//b, err := msgpack.Marshal(map[string]interface{}{"Data": req.Data})
 	b, err := json.Marshal(req)
 	if err != nil {
 		return Response{-1, err.Error(), MessageLocation{}}, err
