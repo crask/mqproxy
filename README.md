@@ -18,7 +18,7 @@ godep go build
 ###生产消息
 
 ```shell
-curl -H "X-Kmq-Topic: yanl" -H "X-Kmq-Partition-Key: 8555" -d "n=8555" http://localhost:9090/foo?format=json
+curl -H "X-Kmq-Topic: yanl" -H "X-Kmq-Partition-Key: 8555" -d "n=8555" http://localhost:9090/produce?format=json
 ```
 
 ```php
