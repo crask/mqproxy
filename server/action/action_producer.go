@@ -37,7 +37,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	partitionKey := r.Header.Get("X-Kmq_Partition_Key")
+	partitionKey := r.Header.Get("X-Kmq-Partition-Key")
 	if partitionKey == "" {
 		echo2client(w, s, producer.Response{
 			Errno:  -1,
