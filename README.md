@@ -24,7 +24,7 @@ curl -H "X-Kmq-Topic: yanl" -H "X-Kmq-Partition-Key: 8555" -d "n=8555" http://lo
 ```php
 <?php
 
-    $ch =curl_init("http://127.0.0.1:9090/produce?format=json");
+    $ch = curl_init("http://127.0.0.1:9090/produce?format=json");
 
     $headers = array();
     $headers[] = 'X-Kmq-Topic: foo_topic';
@@ -40,8 +40,8 @@ curl -H "X-Kmq-Topic: yanl" -H "X-Kmq-Partition-Key: 8555" -d "n=8555" http://lo
             'content' => 'welcome to crask',
     );
 
-    $json_str = json_encode($data);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $json_str);
+    $post_data = http_build_query($data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
 
     $t1 = round(microtime(true) * 1000);
     $res = curl_exec($ch);
