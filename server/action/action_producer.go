@@ -1,16 +1,17 @@
 package action
 
 import (
-	"github.com/crask/mqproxy/global"
-	"github.com/crask/mqproxy/producer/kafka"
-	"github.com/crask/mqproxy/serializer"
-	"gopkg.in/Shopify/sarama.v1"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/crask/mqproxy/global"
+	"github.com/crask/mqproxy/producer/kafka"
+	"github.com/crask/mqproxy/serializer"
+	"gopkg.in/Shopify/sarama.v1"
 )
 
 func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +47,8 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logId := r.Header.Get("X-Kmq-Logid")
+
 	var resData producer.Response
 	//var reqData map[string]interface{}
 
@@ -62,6 +65,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		PartitionKey: partitionKey,
 		TimeStamp:    time.Now().UnixNano() / 1000000,
 		Data:         string(body),
+		LogId:        logId,
 	})
 
 	switch err.(type) {

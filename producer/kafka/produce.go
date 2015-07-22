@@ -3,10 +3,11 @@ package producer
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/Shopify/sarama.v1"
 	"log"
 	"sync"
 	"time"
+
+	"gopkg.in/Shopify/sarama.v1"
 )
 
 type Request struct {
@@ -14,6 +15,7 @@ type Request struct {
 	PartitionKey string
 	TimeStamp    int64
 	Data         string
+	LogId        string
 }
 
 type Response struct {
