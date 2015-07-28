@@ -7,10 +7,13 @@ import (
 	"github.com/wvanbergen/kazoo-go"
 	"log"
 	"net/http"
+	"runtime"
 	"sync"
 )
 
 func Startable(cfg *ProxyConfig) error {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	var err error
 	wg := new(sync.WaitGroup)
 
