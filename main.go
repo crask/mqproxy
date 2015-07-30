@@ -37,6 +37,8 @@ func main() {
 		os.Exit(0)
 	}
 
+	glog.Info("[kafkaproxy]Server starting...")
+
 	cfg, err := server.NewProxyConfig(configFile)
 	if err != nil {
 		glog.Errorf("[kafkaproxy]parse config error, %v", err)
