@@ -1,10 +1,11 @@
 package server
 
 import (
-	"log"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/golang/glog"
 )
 
 type HttpServer struct {
@@ -38,16 +39,12 @@ func startupHttpServer(hs *HttpServer) {
 		WriteTimeout:   hs.WriteTimeout * time.Millisecond,
 		MaxHeaderBytes: hs.MaxHeaderBytes,
 	}
-	if hs.KeepAliveEnable {
-		ss.SetKeepAlivesEnabled(true)
-	} else {
-		ss.SetKeepAlivesEnabled(false)
-	}
+	ss.SetKeepAlivesEnabled(hs.KeepAliveEnable)
 
 	hs.RouterFunc(hs.Mux)
-	err := ss.ListenAndServe()
-	if err != nil {
-		log.Fatalf("stat server ListenAndServe error: %v", err)
+
+	if err := ss.ListenAndServe(); err != nil {
+		glog.Fatalf("[kafkaproxy]Start HTTP server ListenAndServe error: %v", err)
 	}
 }
 

@@ -1,14 +1,16 @@
 package server
 
 import (
-	"github.com/crask/mqproxy/global"
-	"github.com/crask/mqproxy/producer/kafka"
-	"github.com/crask/mqproxy/server/router"
-	"github.com/wvanbergen/kazoo-go"
-	"log"
 	"net/http"
 	"runtime"
 	"sync"
+
+	"github.com/crask/mqproxy/global"
+	"github.com/crask/mqproxy/producer/kafka"
+	"github.com/crask/mqproxy/server/router"
+
+	"github.com/golang/glog"
+	"github.com/wvanbergen/kazoo-go"
 )
 
 func Startable(cfg *ProxyConfig) error {
@@ -25,16 +27,17 @@ func Startable(cfg *ProxyConfig) error {
 
 	zkProxy, err := kazoo.NewKazoo(zkNodes, zkConfig)
 	if err != nil {
-		log.Printf("NewKazoo error: %v", err)
+		glog.Errorf("[kafkaproxy]NewKazoo error: %v", err)
 		return err
 	}
 	defer zkProxy.Close()
 
 	brokerList, err := zkProxy.BrokerList()
 	if err != nil {
-		log.Printf("get broker list error: %v", err)
+		glog.Errorf("[kafkaproxy]Get broker list error: %v", err)
 		return err
 	}
+
 	pcfg := &producer.KafkaProducerConfig{
 		Addrs:               brokerList,
 		MaxOpenRequests:     cfg.MaxOpenRequests,
@@ -52,8 +55,9 @@ func Startable(cfg *ProxyConfig) error {
 
 	global.ProducerPool, err = global.NewKafkaProducerPool(pcfg, cfg.ProducerPoolSize)
 	defer global.DestoryKafkaProducerPool(global.ProducerPool)
+
 	if err != nil {
-		log.Printf("create kafka producer pool error: %v", err)
+		glog.Errorf("[kafkaproxy]Create kafka producer pool error: %v", err)
 		return err
 	}
 
@@ -63,19 +67,7 @@ func Startable(cfg *ProxyConfig) error {
 	)
 	//statMux = make(map[string]func(http.ResponseWriter, *http.Request))
 	proxyMux = make(map[string]func(http.ResponseWriter, *http.Request))
-	/*
-		statHttpServer := &HttpServer{
-			Addr:            ":" + cfg.StatServerPort,
-			Handler:         &HttpHandler{Mux: statMux},
-			ReadTimeout:     cfg.HttpServerReadTimeout,
-			WriteTimeout:    cfg.HttpServerWriteTimeout,
-			MaxHeaderBytes:  cfg.HttpServerMaxHeaderBytes,
-			KeepAliveEnable: cfg.HttpKeepAliveEnabled,
-			RouterFunc:      router.StatServerRouter,
-			Wg:              wg,
-			Mux:             statMux,
-		}
-	*/
+
 	proxyHttpServer := &HttpServer{
 		Addr:            ":" + cfg.HttpServerPort,
 		Handler:         &HttpHandler{Mux: proxyMux},
@@ -88,15 +80,12 @@ func Startable(cfg *ProxyConfig) error {
 		Mux:             proxyMux,
 	}
 
-	//	statHttpServer.Startup()
 	proxyHttpServer.Startup()
-
-	//	defer statHttpServer.Shutdown()
 	defer proxyHttpServer.Shutdown()
 
-	log.Println("MQ Proxy is running...")
+	glog.V(2).Info("[tracing]MQ Proxy is running...")
 	wg.Wait()
-	log.Println("MQ Proxy is exiting...")
+	glog.V(2).Info("[tracing]MQ Proxy is exiting...")
 
 	return nil
 }

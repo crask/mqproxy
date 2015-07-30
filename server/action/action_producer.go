@@ -11,16 +11,23 @@ import (
 	"github.com/crask/mqproxy/global"
 	"github.com/crask/mqproxy/producer/kafka"
 	"github.com/crask/mqproxy/serializer"
+
+	"github.com/golang/glog"
 	"gopkg.in/Shopify/sarama.v1"
 )
 
 func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("read request body error")
-		return
-	}
 
+	var tspro, tepro, tsall, teall time.Time
+	var topic, partitionKey, logId string
+
+	tsall = time.Now()
+	defer func() {
+		glog.Infof("[kafka-pusher][logid:%s][topic:%s][partition-key:%s][cost:%v][cost_mq:%v]",
+			logId, topic, partitionKey, teall.Sub(tsall), tepro.Sub(tspro))
+	}()
+
+	// Pasre URL
 	query := r.URL.Query()
 	msgConverter := strings.Join(query["format"], "")
 	if msgConverter == "" {
@@ -29,8 +36,10 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	s := serializer.Serializer{Converter: msgConverter}
 
-	topic := r.Header.Get("X-Kmq-Topic")
+	// Get Header
+	topic = r.Header.Get("X-Kmq-Topic")
 	if topic == "" {
+		glog.Errorf("[kafkapusher] Invalid request from %s, topic not found.", r.RemoteAddr)
 		echo2client(w, s, producer.Response{
 			Errno:  -1,
 			Errmsg: "Not Found TOPIC Header",
@@ -38,8 +47,9 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	partitionKey := r.Header.Get("X-Kmq-Partition-Key")
+	partitionKey = r.Header.Get("X-Kmq-Partition-Key")
 	if partitionKey == "" {
+		glog.Errorf("[kafkapusher] Invalid request from %s, partition-key not found.", r.RemoteAddr)
 		echo2client(w, s, producer.Response{
 			Errno:  -1,
 			Errmsg: "Not Found PARTITION_KEY Header",
@@ -47,19 +57,24 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logId := r.Header.Get("X-Kmq-Logid")
+	logId = r.Header.Get("X-Kmq-Logid")
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		glog.Errorf("[kafkapusher] Invalid request from %s, read body error[%s].", r.RemoteAddr, err.Error())
+		return
+	}
 
 	var resData producer.Response
-	//var reqData map[string]interface{}
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Printf("catch a panic: %v, recover it", err)
+			glog.Fatalf("catch a panic: %v, recover it", err)
 			err = global.ProducerPool.Rebuild()
-			//				echo2client(w, s, resData)
 		}
 	}()
 
+	tspro = time.Now()
 	resData, err = global.ProducerPool.GetProducer().SendMessage(producer.Request{
 		Topic:        topic,
 		PartitionKey: partitionKey,
@@ -67,6 +82,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		Data:         string(body),
 		LogId:        logId,
 	})
+	tepro = time.Now()
 
 	switch err.(type) {
 	case nil:

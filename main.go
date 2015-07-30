@@ -1,42 +1,50 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
+
 	"github.com/crask/mqproxy/internal/version"
 	"github.com/crask/mqproxy/server"
-	"log"
-	"os"
+
+	"github.com/golang/glog"
 )
 
-func usage(command string) {
-	fmt.Printf("Usage of %s:\n", command)
-	fmt.Println("\t-c config_file:\tRunning mqproxy with config")
-	fmt.Println("\t-v:\tPrint version")
+var (
+	configFile string
+	vers       bool
+	help       bool
+)
+
+func showVersion() {
+	fmt.Println(version.String("kafkaproxy"))
+	flag.Usage()
 }
 
-func checkArgs(args []string) bool {
-	return !(len(os.Args) < 2 ||
-		(os.Args[1] != "-c" && os.Args[1] != "-v") ||
-		(os.Args[1] == "-c" && len(os.Args) < 3))
+func init() {
+	flag.StringVar(&configFile, "c", "conf/proxy.cfg", "Set config file path")
+	flag.BoolVar(&vers, "V", false, "Show version")
+	flag.BoolVar(&help, "h", false, "Show help")
 }
 
 func main() {
-	if !checkArgs(os.Args) {
-		usage(os.Args[0])
-		os.Exit(1)
-	}
+	flag.Parse()
+	defer glog.Flush()
 
-	if os.Args[1] == "-v" {
-		fmt.Println(version.String("mqproxy"))
+	if vers || help {
+		showVersion()
 		os.Exit(0)
 	}
 
-	cfg, err := server.NewProxyConfig(os.Args[2])
+	cfg, err := server.NewProxyConfig(configFile)
 	if err != nil {
-		log.Fatalf("parse config error, %v", err)
+		glog.Errorf("[kafkaproxy]parse config error, %v", err)
+		os.Exit(0)
 	}
 
 	if err = server.Startable(cfg); err != nil {
-		log.Fatalf("server startable error, %v", err)
+		glog.Errorf("[kafkaproxy]server startable error, %v", err)
+		os.Exit(0)
 	}
 }
