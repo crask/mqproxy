@@ -23,6 +23,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	tsall = time.Now()
 	defer func() {
+		teall = time.Now()
 		glog.Infof("[kafka-pusher][logid:%s][topic:%s][partition-key:%s][cost:%v][cost_mq:%v]",
 			logId, topic, partitionKey, teall.Sub(tsall), tepro.Sub(tspro))
 	}()
