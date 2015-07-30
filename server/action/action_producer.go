@@ -23,7 +23,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 	tsall = time.Now()
 	defer func() {
 		teall = time.Now()
-		glog.Infof("[kafka-pusher][logid:%s][topic:%s][partition-key:%s][cost:%v][cost_mq:%v]",
+		glog.Infof("[kafkaproxy][logid:%s][topic:%s][partition-key:%s][cost:%v][cost_mq:%v]",
 			logId, topic, partitionKey, teall.Sub(tsall), tepro.Sub(tspro))
 	}()
 
@@ -39,7 +39,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 	// Get Header
 	topic = r.Header.Get("X-Kmq-Topic")
 	if topic == "" {
-		glog.Errorf("[kafkapusher] Invalid request from %s, topic not found.", r.RemoteAddr)
+		glog.Errorf("[kafkaproxy] Invalid request from %s, topic not found.", r.RemoteAddr)
 		echo2client(w, s, producer.Response{
 			Errno:  -1,
 			Errmsg: "Not Found TOPIC Header",
@@ -49,7 +49,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	partitionKey = r.Header.Get("X-Kmq-Partition-Key")
 	if partitionKey == "" {
-		glog.Errorf("[kafkapusher] Invalid request from %s, partition-key not found.", r.RemoteAddr)
+		glog.Errorf("[kafkaproxy] Invalid request from %s, partition-key not found.", r.RemoteAddr)
 		echo2client(w, s, producer.Response{
 			Errno:  -1,
 			Errmsg: "Not Found PARTITION_KEY Header",
@@ -61,7 +61,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		glog.Errorf("[kafkapusher] Invalid request from %s, read body error[%s].", r.RemoteAddr, err.Error())
+		glog.Errorf("[kafkaproxy] Invalid request from %s, read body error[%s].", r.RemoteAddr, err.Error())
 		return
 	}
 
@@ -109,7 +109,7 @@ func echo2client(w http.ResponseWriter, s serializer.Serializer, res producer.Re
 		"data":   res.Data,
 	})
 	if e != nil {
-		glog.Errorf("[kafkapusher]Marshal http response error, %v", e)
+		glog.Errorf("[kafkaproxy]Marshal http response error, %v", e)
 	} else {
 		io.WriteString(w, string(b))
 	}
