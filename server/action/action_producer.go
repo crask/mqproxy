@@ -109,7 +109,7 @@ func echo2client(w http.ResponseWriter, s serializer.Serializer, res producer.Re
 		"data":   res.Data,
 	})
 	if e != nil {
-		log.Printf("marshal http response error, %v", e)
+		glog.Errorf("[kafkapusher]Marshal http response error, %v", e)
 	} else {
 		io.WriteString(w, string(b))
 	}
