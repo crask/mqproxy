@@ -3,7 +3,6 @@ package action
 import (
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -89,7 +88,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 	case nil:
 		break
 	case sarama.PacketEncodingError:
-		log.Printf("producer SendMessage error, %v", err)
+		glog.Errorf("[kafkaproxy]producer SendMessage error, %v", err)
 		break
 	default:
 		if err == io.EOF {
