@@ -13,8 +13,12 @@
 			"Rev": "ded5959c0d4e360646dc9e9908cff48666781367"
 		},
 		{
-			"ImportPath": "github.com/golang/snappy/snappy",
-			"Rev": "eaa750b9bf4dcb7cb20454be850613b66cda3273"
+			"ImportPath": "github.com/golang/glog",
+			"Rev": "44145f04b68cf362d9c4df2182967c2275eaefed"
+		},
+		{
+			"ImportPath": "github.com/golang/snappy",
+			"Rev": "0c7f8a7704bfec561913f4df52c832f094ef56f0"
 		},
 		{
 			"ImportPath": "github.com/janqii/config",
@@ -30,8 +34,8 @@
 		},
 		{
 			"ImportPath": "gopkg.in/Shopify/sarama.v1",
-			"Comment": "v1.4.2",
-			"Rev": "d546818f24718ecca1fe4c84c2b834109746da86"
+			"Comment": "v1.4.3",
+			"Rev": "2b0d726b296a33715f7f970f006a80c7bfc8a2e8"
 		},
 		{
 			"ImportPath": "gopkg.in/vmihailenco/msgpack.v2",
