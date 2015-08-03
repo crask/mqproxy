@@ -1,9 +1,12 @@
 package global
 
 import (
+	"errors"
 	"github.com/crask/mqproxy/producer/kafka"
 	"sync"
 )
+
+var ErrInvalidParam error = errors.New("Invalid offset when close producer in pool")
 
 type KafkaProducerPool struct {
 	config    *producer.KafkaProducerConfig
@@ -42,8 +45,28 @@ func DestoryKafkaProducerPool(pool *KafkaProducerPool) error {
 	return nil
 }
 
-func (pool *KafkaProducerPool) GetProducer() *producer.KafkaProducer {
-	return pool.producers[(pool.curr+1)%pool.size]
+func (pool *KafkaProducerPool) GetProducer() (*producer.KafkaProducer, int) {
+	pool.curr++
+	pos := pool.curr % pool.size
+	pool.curr = pos
+	return pool.producers[pos], pos
+}
+
+func (pool *KafkaProducerPool) ReopenProducer(kp *producer.KafkaProducer, i int) error {
+	if i >= pool.curr {
+		return ErrInvalidParam
+	}
+
+	pool.lock.Lock()
+	defer pool.lock.Unlock()
+
+	pool.producers[i].Close()
+	//pool.producers[i] = nil
+	var err error
+	if pool.producers[i], err = producer.NewKafkaProducer(pool.config); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (pool *KafkaProducerPool) Rebuild() error {

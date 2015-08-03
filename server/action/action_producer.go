@@ -12,7 +12,7 @@ import (
 	"github.com/crask/mqproxy/serializer"
 
 	"github.com/golang/glog"
-	"gopkg.in/Shopify/sarama.v1"
+	//"gopkg.in/Shopify/sarama.v1"
 )
 
 func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
@@ -67,15 +67,9 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	var resData producer.Response
 
-	defer func() {
-		if err := recover(); err != nil {
-			glog.Fatalf("catch a panic: %v, recover it", err)
-			err = global.ProducerPool.Rebuild()
-		}
-	}()
-
 	tspro = time.Now()
-	resData, err = global.ProducerPool.GetProducer().SendMessage(producer.Request{
+	prod, i := global.ProducerPool.GetProducer()
+	resData, err = prod.SendMessage(producer.Request{
 		Topic:        topic,
 		PartitionKey: partitionKey,
 		TimeStamp:    time.Now().UnixNano() / 1000000,
@@ -84,22 +78,17 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 	})
 	tepro = time.Now()
 
-	switch err.(type) {
-	case nil:
-		break
-	case sarama.PacketEncodingError:
-		glog.Errorf("[kafkaproxy]producer SendMessage error, %v", err)
-		break
-	default:
-		if err == io.EOF {
-			panic("producer detected closed LAN connection, panic")
-		} else {
-			panic(err)
-		}
-		break
-	}
-
+	// flush response first
 	echo2client(w, s, resData)
+
+	// rebuild connection when error
+	if err != nil {
+		glog.Errorf("[kafkaproxy]Produce Message error, %s", err.Error())
+		if err = global.ProducerPool.ReopenProducer(prod, i); err != nil {
+			glog.Errorf("[kafkaproxy]Reopen producer failed when failover.")
+		}
+
+	}
 }
 
 func echo2client(w http.ResponseWriter, s serializer.Serializer, res producer.Response) {
