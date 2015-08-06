@@ -83,9 +83,10 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	// rebuild connection when error
 	if err != nil {
-		glog.Errorf("[kafkaproxy]Produce Message error, %s", err.Error())
+		glog.Errorf("[kafkaproxy][logid:%s][topic:%s][partition-key:%s][Pool-id:%d]Produce Message error, err=%s",
+			logId, topic, partitionKey, i, err.Error())
 		if err = global.ProducerPool.ReopenProducer(prod, i); err != nil {
-			glog.Errorf("[kafkaproxy]Reopen producer failed when failover.")
+			glog.Errorf("[kafkaproxy]Reopen producer failed when failover, pool_id=%d err=%s", i, err.Error())
 		}
 
 	}
