@@ -53,7 +53,7 @@ func (pool *KafkaProducerPool) GetProducer() (*producer.KafkaProducer, int) {
 }
 
 func (pool *KafkaProducerPool) ReopenProducer(kp *producer.KafkaProducer, i int) error {
-	if i >= pool.curr {
+	if i >= pool.size {
 		return ErrInvalidParam
 	}
 
