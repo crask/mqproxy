@@ -1,7 +1,37 @@
 {
-	"ImportPath": "github.com/crask/mqproxy",
+	"ImportPath": "github.com/actank/mqproxy",
 	"GoVersion": "go1.4.2",
 	"Deps": [
+		{
+			"ImportPath": "github.com/astaxie/beego/toolbox",
+			"Comment": "v1.5.0-3-ga89f14d",
+			"Rev": "a89f14d80dab442927bdc11d641aa1250ab8ad71"
+		},
+		{
+			"ImportPath": "github.com/crask/mqproxy/global",
+			"Comment": "0.3",
+			"Rev": "636c9beb9d5fac151ae639aa0655ccf83c743063"
+		},
+		{
+			"ImportPath": "github.com/crask/mqproxy/internal/version",
+			"Comment": "0.3",
+			"Rev": "636c9beb9d5fac151ae639aa0655ccf83c743063"
+		},
+		{
+			"ImportPath": "github.com/crask/mqproxy/producer/kafka",
+			"Comment": "0.3",
+			"Rev": "636c9beb9d5fac151ae639aa0655ccf83c743063"
+		},
+		{
+			"ImportPath": "github.com/crask/mqproxy/serializer",
+			"Comment": "0.3",
+			"Rev": "636c9beb9d5fac151ae639aa0655ccf83c743063"
+		},
+		{
+			"ImportPath": "github.com/crask/mqproxy/server",
+			"Comment": "0.3",
+			"Rev": "636c9beb9d5fac151ae639aa0655ccf83c743063"
+		},
 		{
 			"ImportPath": "github.com/eapache/go-resiliency/breaker",
 			"Comment": "v1.0.0-1-ged0319b",
@@ -13,8 +43,12 @@
 			"Rev": "ded5959c0d4e360646dc9e9908cff48666781367"
 		},
 		{
-			"ImportPath": "github.com/golang/snappy/snappy",
-			"Rev": "eaa750b9bf4dcb7cb20454be850613b66cda3273"
+			"ImportPath": "github.com/golang/glog",
+			"Rev": "44145f04b68cf362d9c4df2182967c2275eaefed"
+		},
+		{
+			"ImportPath": "github.com/golang/snappy",
+			"Rev": "723cc1e459b8eea2dea4583200fd60757d40097a"
 		},
 		{
 			"ImportPath": "github.com/janqii/config",
@@ -30,8 +64,8 @@
 		},
 		{
 			"ImportPath": "gopkg.in/Shopify/sarama.v1",
-			"Comment": "v1.4.2",
-			"Rev": "d546818f24718ecca1fe4c84c2b834109746da86"
+			"Comment": "v1.4.3",
+			"Rev": "2b0d726b296a33715f7f970f006a80c7bfc8a2e8"
 		},
 		{
 			"ImportPath": "gopkg.in/vmihailenco/msgpack.v2",
