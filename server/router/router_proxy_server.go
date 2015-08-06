@@ -10,4 +10,5 @@ func ProxyServerRouter(mux map[string]func(http.ResponseWriter, *http.Request)) 
 
 	mux["/produce"] = action.HttpProducerAction
 	mux["/consumer/fetch"] = action.FetchMessageAction
+	mux["/profile"] = action.ProfileAction
 }
