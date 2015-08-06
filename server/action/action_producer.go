@@ -19,12 +19,13 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	var tspro, tepro, tsall, teall time.Time
 	var topic, partitionKey, logId string
+	var resData producer.Response
 
 	tsall = time.Now()
 	defer func() {
 		teall = time.Now()
-		glog.Infof("[kafkaproxy][logid:%s][topic:%s][partition-key:%s][cost:%v][cost_mq:%v]",
-			logId, topic, partitionKey, teall.Sub(tsall), tepro.Sub(tspro))
+		glog.Infof("[kafkaproxy][logid:%s][topic:%s][partition-key:%s][partition:%d][offset:%d][cost:%v][cost_mq:%v]",
+			logId, topic, partitionKey, resData.Data.Partition, resData.Data.Offset, teall.Sub(tsall), tepro.Sub(tspro))
 	}()
 
 	// Pasre URL
@@ -64,8 +65,6 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		glog.Errorf("[kafkaproxy] Invalid request from %s, read body error[%s].", r.RemoteAddr, err.Error())
 		return
 	}
-
-	var resData producer.Response
 
 	tspro = time.Now()
 	prod, i := global.ProducerPool.GetProducer()
