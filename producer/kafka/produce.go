@@ -16,6 +16,7 @@ type Request struct {
 	TimeStamp    int64
 	Data         string
 	LogId        string
+	ContentType  string
 }
 
 type Response struct {

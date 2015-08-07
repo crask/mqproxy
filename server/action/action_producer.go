@@ -18,7 +18,7 @@ import (
 func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	var tspro, tepro, tsall, teall time.Time
-	var topic, partitionKey, logId string
+	var topic, partitionKey, logId, contentType string
 	var resData producer.Response
 
 	tsall = time.Now()
@@ -66,6 +66,8 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	contentType = r.Header.Get("content-type")
+
 	tspro = time.Now()
 	prod, i := global.ProducerPool.GetProducer()
 	resData, err = prod.SendMessage(producer.Request{
@@ -74,6 +76,7 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 		TimeStamp:    time.Now().UnixNano() / 1000000,
 		Data:         string(body),
 		LogId:        logId,
+		ContentType:  contentType,
 	})
 	tepro = time.Now()
 
