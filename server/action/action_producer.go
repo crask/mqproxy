@@ -24,8 +24,8 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 	tsall = time.Now()
 	defer func() {
 		teall = time.Now()
-		glog.Infof("[kafkaproxy][logid:%s][topic:%s][partition-key:%s][partition:%d][offset:%d][cost:%v][cost_mq:%v]",
-			logId, topic, partitionKey, resData.Data.Partition, resData.Data.Offset, teall.Sub(tsall), tepro.Sub(tspro))
+		glog.Infof("[kafkaproxy][logid:%s][topic:%s][partition-key:%s][partition:%d][offset:%d][cost:%v][cost_mq:%v][ctype:%s]",
+			logId, topic, partitionKey, resData.Data.Partition, resData.Data.Offset, teall.Sub(tsall), tepro.Sub(tspro), contentType)
 	}()
 
 	// Pasre URL
