@@ -2,11 +2,11 @@ package producer
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"sync"
 	"time"
 
+	"github.com/golang/glog"
 	"gopkg.in/Shopify/sarama.v1"
 )
 
@@ -73,7 +73,9 @@ func (kp *KafkaProducer) SendMessage(req Request) (Response, error) {
 	if err != nil {
 		return Response{-1, err.Error(), MessageLocation{}}, err
 	}
-	fmt.Println(string(b))
+
+	glog.V(2).Info(string(b))
+
 	msg := &sarama.ProducerMessage{
 		Topic: req.Topic,
 		Key:   sarama.StringEncoder(req.PartitionKey),
