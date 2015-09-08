@@ -1,6 +1,7 @@
 package action
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -24,8 +25,8 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 	tsall = time.Now()
 	defer func() {
 		teall = time.Now()
-		glog.Infof("[kafkaproxy][logid:%s][topic:%s][partition-key:%s][partition:%d][offset:%d][cost:%v][cost_mq:%v][ctype:%s]",
-			logId, topic, partitionKey, resData.Data.Partition, resData.Data.Offset, teall.Sub(tsall), tepro.Sub(tspro), contentType)
+		glog.Infof("[kafkaproxy][logid:%s][topic:%s][partition-key:%s][partition:%d][offset:%d][cost:%sms][cost_mq:%sms][ctype:%s]",
+			logId, topic, partitionKey, resData.Data.Partition, resData.Data.Offset, fmt.Sprintf("%.2f", teall.Sub(tsall).Seconds()*1000), fmt.Sprintf("%.2f", tepro.Sub(tspro).Seconds()*1000), contentType)
 	}()
 
 	// Pasre URL
