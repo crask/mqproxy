@@ -149,6 +149,9 @@ func NewProducerConfig(cfg *KafkaProducerConfig) *sarama.Config {
 	config.Consumer.Retry.Backoff = 2 * time.Second
 	config.Consumer.MaxWaitTime = 250 * time.Millisecond
 	config.Consumer.Return.Errors = false
+	config.Consumer.MaxProcessingTime
+	config.Consumer.MaxProcessingTime
+	config.Consumer.MaxProcessingTime
 
 	return config
 }
