@@ -66,8 +66,8 @@ func NewKafkaProducer(config *KafkaProducerConfig) (*KafkaProducer, error) {
 func (kp *KafkaProducer) SendMessage(req Request) (Response, error) {
 	var err error
 
-	kp.m.Lock()
-	defer kp.m.Unlock()
+	//kp.m.Lock()
+	//defer kp.m.Unlock()
 
 	b, err := json.Marshal(req)
 	if err != nil {
@@ -137,6 +137,9 @@ func NewProducerConfig(cfg *KafkaProducerConfig) *sarama.Config {
 	} else {
 		config.Producer.Compression = sarama.CompressionSnappy
 	}
+	config.Producer.Retry.Max = 3
+	config.Producer.Retry.Backoff = 100 * time.Millisecond
+	config.Producer.Return.Errors = true
 
 	config.Producer.MaxMessageBytes = cfg.MaxMessageBytes
 	config.ChannelBufferSize = cfg.ChannelBufferSize
@@ -149,9 +152,9 @@ func NewProducerConfig(cfg *KafkaProducerConfig) *sarama.Config {
 	config.Consumer.Retry.Backoff = 2 * time.Second
 	config.Consumer.MaxWaitTime = 250 * time.Millisecond
 	config.Consumer.Return.Errors = false
-	config.Consumer.MaxProcessingTime
-	config.Consumer.MaxProcessingTime
-	config.Consumer.MaxProcessingTime
+	config.Consumer.MaxProcessingTime = 100 * time.Millisecond
+	config.Consumer.Offsets.CommitInterval = 1 * time.Second
+	config.Consumer.Offsets.Initial = -1
 
 	return config
 }
