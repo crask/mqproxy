@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/crask/mqproxy",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.5",
 	"Deps": [
 		{
 			"ImportPath": "github.com/eapache/go-resiliency/breaker",
@@ -25,6 +25,10 @@
 			"Rev": "0f78529c8c7e3e9a25f15876532ecbc07c7d99e6"
 		},
 		{
+			"ImportPath": "github.com/klauspost/crc32",
+			"Rev": "f8d2e12057f7ef26ae42ecfa42697f4bdc32d7eb"
+		},
+		{
 			"ImportPath": "github.com/samuel/go-zookeeper/zk",
 			"Rev": "5bb5cfc093ad18a28148c578f8632cfdb4d802e4"
 		},
@@ -34,8 +38,8 @@
 		},
 		{
 			"ImportPath": "gopkg.in/Shopify/sarama.v1",
-			"Comment": "v1.4.3",
-			"Rev": "2b0d726b296a33715f7f970f006a80c7bfc8a2e8"
+			"Comment": "v1.6.1",
+			"Rev": "35093741160a61deca1a9b08fb5f508c6cece9c8"
 		},
 		{
 			"ImportPath": "gopkg.in/vmihailenco/msgpack.v2",
