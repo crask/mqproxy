@@ -5,20 +5,24 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/crask/mqproxy/internal/version"
 	"github.com/crask/mqproxy/server"
 
 	"github.com/golang/glog"
+)
+
+const (
+	VERSION = "1.0.3"
 )
 
 var (
 	configFile string
 	vers       bool
 	help       bool
+	gitCommit  string
 )
 
 func showVersion() {
-	fmt.Println(version.String("kafkaproxy"))
+	fmt.Println(fmt.Sprintf("%s-%s", VERSION, gitCommit))
 	flag.Usage()
 }
 
