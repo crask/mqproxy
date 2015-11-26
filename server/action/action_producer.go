@@ -71,14 +71,6 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 
 	tspro = time.Now()
 	prod, i := global.ProducerPool.GetProducer()
-	if (prod == nil) {
-		glog.Errorf("[kafkaproxy][logid:%s][topic:%s][partition-key:%s][Pool-id:%d]Produce Message error, err=%s",
-			logId, topic, partitionKey, i, err.Error())
-		if err = global.ProducerPool.ReopenProducer(prod, i); err != nil {
-			glog.Errorf("[kafkaproxy]Reopen producer failed when failover, pool_id=%d err=%s", i, err.Error())
-			return
-		}
-	}
 	resData, err = prod.SendMessage(producer.Request{
 		Topic:        topic,
 		PartitionKey: partitionKey,
@@ -96,10 +88,6 @@ func HttpProducerAction(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		glog.Errorf("[kafkaproxy][logid:%s][topic:%s][partition-key:%s][Pool-id:%d]Produce Message error, err=%s",
 			logId, topic, partitionKey, i, err.Error())
-		if err = global.ProducerPool.ReopenProducer(prod, i); err != nil {
-			glog.Errorf("[kafkaproxy]Reopen producer failed when failover, pool_id=%d err=%s", i, err.Error())
-		}
-
 	}
 }
 
